@@ -15,7 +15,7 @@ dotenv.config();
 const server = express();
 
 server.use(cors({
-  origin: "http://localhost:5173",
+  origin: "http://localhost:3000",
   credentials: true
 }))
 
@@ -30,7 +30,7 @@ server.use('/orders', orderRouter)
 server.use('/checkout', checkoutRouter)
 
 connectDB().then(() => {
-  server.listen(3000, () => {
+  server.listen(3001, () => {
     console.log("Server is listening");
   });
 });
