@@ -8,7 +8,7 @@ const orderRouter = express.Router()
 //get user orders
 orderRouter.get('/', protect, async (req, res) => {
   try {
-    const orders =  await Order.findOne({ user: req.user.id }).populate("items.product")
+    const orders =  await Order.find({ user: req.user.id }).populate("items.product")
     res.status(200).json(orders)
   } catch (error) {
     res.status(500).json({ error: error.message })

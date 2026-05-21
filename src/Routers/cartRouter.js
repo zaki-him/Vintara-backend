@@ -1,13 +1,15 @@
+import mongoose from 'mongoose'
 import express from 'express'
 import protect from '../Middlewares/protect.js'
 import Cart from '../Modules/cart.js'
+import Product from '../Modules/product.js'
 
 const cartRouter = express.Router()
 
 //get all items
 cartRouter.get('/', protect, async (req, res) => {
   try {
-    const cart = await Cart.find({ user: req.user.id }).populate("items.product")
+    const cart = await Cart.findOne({ user: req.user.id }).populate("items.product")
     res.status(200).json(cart || { user: req.user.id, items: [] })
   } catch (error) {
     res.status(500).json({ error: error.message })
@@ -42,6 +44,10 @@ cartRouter.post('/add', protect, async (req, res) => {
     }
 
     // Check stock availability
+    const product = await Product.findById(productId)
+    if(!product){
+      return res.status(404).json({ message: 'Product not found' })
+    }
     if(product.stock < qty){
       return res.status(400).json({ 
         message: `Only ${product.stock} items available` 
@@ -58,9 +64,9 @@ cartRouter.post('/add', protect, async (req, res) => {
     const itemIndex = cart.items.findIndex(i => i.product.toString() === productId)
 
     if(itemIndex > -1){
-      cart.items[itemIndex].quantity += quantity
+      cart.items[itemIndex].quantity += qty
     }else{
-      cart.items.push({ product: productId, quantity })
+      cart.items.push({ product: productId, quantity: qty })
     }
 
     await cart.save()

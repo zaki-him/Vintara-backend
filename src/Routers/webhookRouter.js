@@ -41,9 +41,10 @@ webhookRouter.post(
           //create new order in database
           const order = new Order({
             user: session.client_reference_id,
-            items: cart.items,
+            items: cart.items.map(item => ({ product: item.product._id, quantity: item.quantity })),
             totalPrice: session.amount_total / 100, // stripe uses cents
             status: "Paid",
+            shippingAddress: 'No shipping address provided',
           });
 
           await order.save();
@@ -56,6 +57,7 @@ webhookRouter.post(
         }
       } catch (error) {
         console.log(`Webhook Error: ${error.message}`)
+        return res.status(500).json({ error: error.message })
       }
 
     }
